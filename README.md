@@ -1,203 +1,219 @@
-# Task Management System
+# Task Management API
 
-A Task Management System built with Node.js, Express, MongoDB, and JWT authentication. Users can create, assign, update, delete, and manage tasks with role-based access control.
+## Overview
+
+This API provides a task management system with role-based access control. Users can manage tasks, with administrators having the ability to perform CRUD operations. The API includes user authentication, task management, and role-based permissions.
+
+
+
 
 ## Features
 
-- **User Roles**: Admin, Task Creator, and Task Assignee.
-- **Task CRUD Operations**: Create, read, update, and delete tasks.
-- **Task Assignment**: Assign tasks to multiple users.
-- **JWT Authentication**: Secure routes with JWT tokens.
-- **Task Filters**: Filter tasks by status and priority.
-  
-## Prerequisites
+- **User Authentication**:
+  - Register and log in users with JWT-based authentication.
+  - Secure session management with token handling.
+- **Task Management**:
+  - Create, read, update, and delete tasks.
+  - Task details include title, description, priority, status, and assigned user.
+- **Role-Based Access Control**:
+  - Only users with the role `admin` can perform CRUD operations on tasks.
+  - Regular users can view tasks but cannot modify them.
+- **Error Handling**:
+  - Proper error responses for invalid requests and unauthorized access.
+- **Sample Data**:
+  - Includes example requests and responses for various endpoints.
 
-- Node.js v16 or higher
-- MongoDB (Local or Remote Instance)
+## Backend Endpoints
 
-## Installation
+### Auth Routes
 
-1. **Clone the repository**:
-    ```bash
-    git clone https://github.com/varshitha-008/Task_Management.git
-    cd Task_Management
-    ```
-
-2. **Install dependencies**:
-    ```bash
-    npm install
-    ```
-
-3. **Configure Environment Variables**:
-    Create a `.env` file in the project root and add the following environment variables:
-    ```env
-    MONGO_URI=mongodb+srv://varshithab008:123@cluster0.zf2sm.mongodb.net/?retryWrites=true&w=majority
-  JWT_SECRET=task;
-  PORT=5000
-
-4. **Start the server**:
-    ```bash
-    npm run dev
-    ```
-
-## API Routes
-
-### Authentication Routes
-
-- **Login**  
-  `POST /api/auth/login`  
-  Authenticate a user and retrieve a JWT token.
-  
-  **Request**:
-  ```json
-  {
-    "email": "user@example.com",
-    "password": "password"
-  }
- **Response**
-
+- **POST /api/auth/register**
+  - Register a new user.
+  - Request body:
+    ```json
     {
-    "token": "jwt_token"
+      "username": "John Doe",
+      "email": "john.doe@example.com",
+      "password": "password123",
+
     }
+    ```
+  - Response:
+    ```json
+    {
+      "message": "Register successful",
+      "user": {
+        "_id": "userId",
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        
+      }
+    }
+    ```
 
+- **POST /api/auth/login**
+  - Log in an existing user.
+  - Request body:
+    ```json
+    {
+      "email": "john.doe@example.com",
+      "password": "password123"
+    }
+    ```
+  - Response:
+    ```json
+    {
+      "accessToken": "jwtToken",
+      "refreshToken": "refreshToken",
+      "user": {
+        "_id": "userId",
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "role": "admin"
+      }
+    }
+    ```
 
- ## Register
+- **POST /api/auth/refresh-token**
+  - Refresh the access token using a valid refresh token.
+  - Request body:
+    ```json
+    {
+      "refreshToken": "refreshToken"
+    }
+    ```
+  - Response:
+    ```json
+    {
+      "accessToken": "newAccessToken"
+    }
+    ```
 
-**Endpoint:** `POST /api/auth/register`
+- **POST /api/auth/logout**
+  - Invalidate the refresh token to log out a user.
+  - Request body:
+    ```json
+    {
+      "refreshToken": "refreshToken"
+    }
+    ```
+  - Response:
+    ```json
+    {
+      "message": "User logged out successfully"
+    }
+    ```
 
-**Description:** Register a new user with name, email, and password.
+### Task Routes
 
-**Request:**
+- **POST /api/tasks**
+  - Create a new task. Only accessible to users with the role `admin`.
+  - Request body:
+    ```json
+    {
+      "title": "Complete project report",
+      "description": "Finish the report and submit it by the end of the week.",
+      "priority": "high",
+      "status": "pending",
+      "assignedTo": "userId" // Optional, user ID to whom the task is assigned.
+    }
+    ```
+  - Response:
+    ```json
+    {
+      "title": "Complete project report",
+      "description": "Finish the report and submit it by the end of the week.",
+      "priority": "high",
+      "status": "pending",
+      "assignedTo": "userId"
+    }
+    ```
 
-     {
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "password"
-   }
+- **GET /api/tasks**
+  - Fetch all tasks. Includes optional filtering by priority, status, and assigned user.
+  - Query parameters:
+    - `priority`: Filter tasks by priority (e.g., `low`, `medium`, `high`).
+    - `status`: Filter tasks by status (e.g., `pending`, `in progress`, `completed`).
+    - `assignedTo`: Filter tasks by assigned user ID.
+  - Response:
+    ```json
+    [
+      {
+        "title": "Complete project report",
+        "description": "Finish the report and submit it by the end of the week.",
+        "priority": "high",
+        "status": "pending",
+        "assignedTo": "userId"
+      }
+    ]
+    ```
 
+- **GET /api/tasks/:id**
+  - Fetch a specific task by its ID.
+  - Request parameters:
+    - `id`: The ID of the task to retrieve.
+  - Response:
+    ```json
+    {
+      "title": "Complete project report",
+      "description": "Finish the report and submit it by the end of the week.",
+      "priority": "high",
+      "status": "pending",
+      "assignedTo": "userId"
+    }
+    ```
 
- ## Task Routes
+- **PUT /api/tasks/:id**
+  - Update a specific task by its ID. Only accessible to users with the role `admin`.
+  - Request body:
+    ```json
+    {
+      "title": "Updated task title",
+      "description": "Updated task description",
+      "priority": "medium",
+      "status": "in progress",
+      "assignedTo": "userId"
+    }
+    ```
+  - Response:
+    ```json
+    {
+      "title": "Updated task title",
+      "description": "Updated task description",
+      "priority": "medium",
+      "status": "in progress",
+      "assignedTo": "userId"
+    }
+    ```
 
-All task routes are protected by JWT, requiring the `Authorization: Bearer <token>` header.
+- **DELETE /api/tasks/:id**
+  - Delete a specific task by its ID. Only accessible to users with the role `admin`.
+  - Request parameters:
+    - `id`: The ID of the task to delete.
+  - Response:
+    ```json
+    {
+      "message": "Task deleted"
+    }
+    ```
 
-### Create Task
+## Roles and Permissions
 
-**Endpoint:** `POST /api/tasks`
+- **User**:
+  - Can view tasks.
+  
+- **Admin**:
+  - Can perform all CRUD operations on tasks.
 
-**Description:** Create a new task. Only the creator or admin can create tasks.
+## Sample Data
 
-**Request:**
+### Register Admin User
 
-```json
-{
-  "title": "New Task",
-  "description": "Task description",
-  "priority": "medium",
-  "status": "pending",
-  "assignedTo": ["user_id1", "user_id2"]
-}
-
-
-
-### Get Task by ID
-
-**Endpoint:** `GET /api/tasks/:id`
-
-**Description:** Retrieve a specific task by its ID.
-
-**Response:**
-
-- **200 OK**
-
+- **Request Body**:
   ```json
   {
-    "_id": "task_id",
-    "title": "Task 1",
-    "description": "Task description",
-    "priority": "medium",
-    "status": "pending",
-    "assignedTo": ["user_id1", "user_id2"],
-    "createdBy": "creator_id"
+    "name": "Admin User",
+    "email": "admin@example.com",
+    "password": "adminpassword",
+    "role": "admin"
   }
-  
-  
-  ### Update Task
-
-**Endpoint:** `PUT /api/tasks/:id`
-
-**Description:** Update task details. Only task creators or admins can update tasks.
-
-**Request:**
-
-```json
-{
-  "title": "Updated Task",
-  "description": "Updated description",
-  "priority": "high",
-  "status": "in-progress"
-}
-
-
-## Task Routes
-
-All task routes are protected by JWT, requiring the `Authorization: Bearer <token>` header.
-
-### Delete Task
-
-**Endpoint:** `DELETE /api/tasks/:id`
-
-**Description:** Delete a task. Only task creators or admins can delete tasks.
-
-**Responses:**
-
-- **200 OK**
-
-  ```json
-  {
-    "message": "Task deleted successfully"
-  }
-
-
-# Assign Task to Users
-
-**Endpoint:** `PUT /api/tasks/:id/assign`
-
-**Description:** Assign users to a task. Only task creators or admins can assign tasks.
-
-**Request:**
-
-```json
-{
-  "assignedTo": ["user_id1", "user_id2"]
-}
-
-
-## Authentication
-
-All routes require authentication using JWT (JSON Web Token). The token must be passed in the `Authorization` header of every request.
-
-**Header Format:**
-
-```http
-Authorization: Bearer <your_jwt_token>
-
-
-
-## Error Handling
-
-The API returns the following HTTP status codes for error handling:
-
-- **400 Bad Request:** When an invalid request is made (e.g., invalid parameters).
-
-  **Response Example:**
-    
-   - 400 Bad Request: When an invalid request is made (e.g., invalid parameters).
-    401 Unauthorized: When the user is not authenticated or the token is invalid.
-    403 Forbidden: When the user does not have permission to access the resource.
-    404 Not Found: When the requested resource does not exist.
-    500 Internal Server Error: When an unexpected error occurs on the server.
-
-
-
-
-
