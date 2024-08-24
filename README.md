@@ -4,6 +4,8 @@
 
 This API provides a task management system with role-based access control. Users can manage tasks, with administrators having the ability to perform CRUD operations. The API includes user authentication, task management, and role-based permissions.
 
+## Backend URL:
+  https://task-management-wq3r.onrender.com
 
 
 
@@ -23,6 +25,14 @@ This API provides a task management system with role-based access control. Users
 - **Sample Data**:
   - Includes example requests and responses for various endpoints.
 
+
+## Tech Stacks 
+    ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+    ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+    ![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+    
+     
+
 ## Backend Endpoints
 
 ### Auth Routes
@@ -31,78 +41,41 @@ This API provides a task management system with role-based access control. Users
   - Register a new user.
   - Request body:
     ```json
-    {
-      "username": "John Doe",
-      "email": "john.doe@example.com",
-      "password": "password123",
-
-    }
-    ```
+        {
+          "username":"Varshitha",
+          "email":"varshithaa@gmail.com",
+          "password":"123"
+        }
+            ```
   - Response:
     ```json
-    {
-      "message": "Register successful",
-      "user": {
-        "_id": "userId",
-        "name": "John Doe",
-        "email": "john.doe@example.com",
-        
-      }
-    }
+                  {
+          "email": "varshithaa@gmail.com",
+          "username": "Varshitha",
+          "password": "$2b$10$8z8i43rF2V74l7JD7jiuw.TG5QkF2mJvGrqXvWwJhMfv4NzPyQpVa",
+          "role": "user",
+          "_id": "66c98b8540902abfc6f6000d",
+          "__v": 0
+        }
     ```
 
 - **POST /api/auth/login**
   - Log in an existing user.
   - Request body:
     ```json
-    {
-      "email": "john.doe@example.com",
-      "password": "password123"
-    }
+         {
+          
+          "email":"varshithaa@gmail.com",
+          "password":"123"
+        }
     ```
   - Response:
     ```json
-    {
-      "accessToken": "jwtToken",
-      "refreshToken": "refreshToken",
-      "user": {
-        "_id": "userId",
-        "name": "John Doe",
-        "email": "john.doe@example.com",
-        "role": "admin"
-      }
-    }
+        {
+          "token": "access token"
+        }
     ```
 
-- **POST /api/auth/refresh-token**
-  - Refresh the access token using a valid refresh token.
-  - Request body:
-    ```json
-    {
-      "refreshToken": "refreshToken"
-    }
-    ```
-  - Response:
-    ```json
-    {
-      "accessToken": "newAccessToken"
-    }
-    ```
-
-- **POST /api/auth/logout**
-  - Invalidate the refresh token to log out a user.
-  - Request body:
-    ```json
-    {
-      "refreshToken": "refreshToken"
-    }
-    ```
-  - Response:
-    ```json
-    {
-      "message": "User logged out successfully"
-    }
-    ```
 
 ### Task Routes
 
@@ -110,23 +83,29 @@ This API provides a task management system with role-based access control. Users
   - Create a new task. Only accessible to users with the role `admin`.
   - Request body:
     ```json
-    {
-      "title": "Complete project report",
-      "description": "Finish the report and submit it by the end of the week.",
-      "priority": "high",
+        {
+      "title": "Evaluation",
+      "description": "Description of the new task",
       "status": "pending",
-      "assignedTo": "userId" // Optional, user ID to whom the task is assigned.
+      "priority": "medium",
+      "assignedTo": ["64d16c1c4bcf08bcd3deed88"]
     }
+
     ```
   - Response:
     ```json
-    {
-      "title": "Complete project report",
-      "description": "Finish the report and submit it by the end of the week.",
-      "priority": "high",
-      "status": "pending",
-      "assignedTo": "userId"
-    }
+          {
+          "title": "Evaluation",
+          "description": "Description of the new task",
+          "status": "pending",
+          "priority": "medium",
+          "assignedTo": [
+            "64d16c1c4bcf08bcd3deed88"
+          ],
+          "createdBy": "66c98b8540902abfc6f6000d",
+          "_id": "66c98ed7ff856f4597a36dbd",
+          "__v": 0
+        }
     ```
 
 - **GET /api/tasks**
@@ -134,16 +113,26 @@ This API provides a task management system with role-based access control. Users
   - Query parameters:
     - `priority`: Filter tasks by priority (e.g., `low`, `medium`, `high`).
     - `status`: Filter tasks by status (e.g., `pending`, `in progress`, `completed`).
-    - `assignedTo`: Filter tasks by assigned user ID.
+    - `creator`: Filter tasks by creator and assigned to.
   - Response:
     ```json
-    [
+        [
       {
-        "title": "Complete project report",
-        "description": "Finish the report and submit it by the end of the week.",
-        "priority": "high",
+        "_id": "66c98ed7ff856f4597a36dbd",
+        "title": "Evaluation",
+        "description": "Description of the new task",
         "status": "pending",
-        "assignedTo": "userId"
+        "priority": "medium",
+        "assignedTo": [],
+        "createdBy": {
+          "_id": "66c98b8540902abfc6f6000d",
+          "email": "varshithaa@gmail.com",
+          "username": "Varshitha",
+          "password": "$2b$10$8z8i43rF2V74l7JD7jiuw.TG5QkF2mJvGrqXvWwJhMfv4NzPyQpVa",
+          "role": "user",
+          "__v": 0
+        },
+        "__v": 0
       }
     ]
     ```
@@ -154,35 +143,60 @@ This API provides a task management system with role-based access control. Users
     - `id`: The ID of the task to retrieve.
   - Response:
     ```json
-    {
-      "title": "Complete project report",
-      "description": "Finish the report and submit it by the end of the week.",
-      "priority": "high",
-      "status": "pending",
-      "assignedTo": "userId"
-    }
+        [
+      {
+        "_id": "66c98ed7ff856f4597a36dbd",
+        "title": "Evaluation",
+        "description": "Description of the new task",
+        "status": "pending",
+        "priority": "medium",
+        "assignedTo": [],
+        "createdBy": {
+          "_id": "66c98b8540902abfc6f6000d",
+          "email": "varshithaa@gmail.com",
+          "username": "Varshitha",
+          "password": "$2b$10$8z8i43rF2V74l7JD7jiuw.TG5QkF2mJvGrqXvWwJhMfv4NzPyQpVa",
+          "role": "user",
+          "__v": 0
+        },
+        "__v": 0
+      }
+    ]
     ```
 
 - **PUT /api/tasks/:id**
   - Update a specific task by its ID. Only accessible to users with the role `admin`.
   - Request body:
     ```json
-    {
-      "title": "Updated task title",
-      "description": "Updated task description",
-      "priority": "medium",
-      "status": "in progress",
-      "assignedTo": "userId"
-    }
+        {
+        "title": "Evaluation1",
+        "description": "Description of the new task",
+        "status": "pending",
+        "priority": "medium",
+        "assignedTo": ["64d16c1c4bcf08bcd3deed88"]
+      }
+
     ```
   - Response:
     ```json
-    {
-      "title": "Updated task title",
-      "description": "Updated task description",
+        {
+      "_id": "66c98ed7ff856f4597a36dbd",
+      "title": "Evaluation1",
+      "description": "Description of the new task",
+      "status": "pending",
       "priority": "medium",
-      "status": "in progress",
-      "assignedTo": "userId"
+      "assignedTo": [
+        "64d16c1c4bcf08bcd3deed88"
+      ],
+      "createdBy": {
+        "_id": "66c98b8540902abfc6f6000d",
+        "email": "varshithaa@gmail.com",
+        "username": "Varshitha",
+        "password": "$2b$10$8z8i43rF2V74l7JD7jiuw.TG5QkF2mJvGrqXvWwJhMfv4NzPyQpVa",
+        "role": "user",
+        "__v": 0
+      },
+      "__v": 2
     }
     ```
 
@@ -205,15 +219,3 @@ This API provides a task management system with role-based access control. Users
 - **Admin**:
   - Can perform all CRUD operations on tasks.
 
-## Sample Data
-
-### Register Admin User
-
-- **Request Body**:
-  ```json
-  {
-    "name": "Admin User",
-    "email": "admin@example.com",
-    "password": "adminpassword",
-    "role": "admin"
-  }
